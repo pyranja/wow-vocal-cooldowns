@@ -1441,7 +1441,9 @@ elseif class == "DEATH KNIGHT" then
 end
 
 
-local isMP3Playing = false
+local function Speech(text)
+    C_VoiceChat.SpeakText(2, text, Enum.VoiceTtsDestination.QueuedLocalPlayback, 0, 100)
+end
 
 -- Function to check individual spell cooldowns and play sound
 local function CheckSpellCooldown(spellID)
@@ -1455,24 +1457,10 @@ local function CheckSpellCooldown(spellID)
             info.onCooldown = true
             info.exptime = spellCooldownInfo.startTime + spellCooldownInfo.duration
         elseif info.exptime and info.exptime < GetTime() and info.onCooldown then
-            -- Spell is off cooldown, play the MP3 and set the flag to prevent multiple plays
-            if not isMP3Playing then
-                PlaySoundFile(info.mp3)
-                isMP3Playing = true
-                -- Set a timer to reset the isMP3Playing flag after a delay (e.g., 1 second)
-                C_Timer.After(1, function()
-                    isMP3Playing = false
-                end)
-            end
+            Speech(info.name)
             info.onCooldown = false
         end
     end
-end
-
--- Function to play the login announcement sound
-local function PlayLoginSound()
-    local mp3File = "Interface\\AddOns\\CDVA_Retail\\Sounds\\CDVAannouncement.mp3"  -- Replace with the path to your login announcement MP3 file
-    PlaySoundFile(mp3File)
 end
 
 -- Function to check all spell cooldowns
@@ -1527,7 +1515,7 @@ frame:SetScript("OnEvent", function()
     end
 
     -- Play the login announcement sound when the player logs in
-    PlayLoginSound()
+    Speech("CDVA")
 
     -- Delay for 5 seconds
     C_Timer.After(5, function()
