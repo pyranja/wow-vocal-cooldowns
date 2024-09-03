@@ -1,0 +1,8 @@
+## Interface: 100107
+## Title: CDVA_Retail
+## Author: Fightts
+## Version: 1.0
+## SavedVariables: CDVASavedVars
+## DefaultState: enabled
+
+core.lua
