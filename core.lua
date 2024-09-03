@@ -1249,7 +1249,7 @@ frame:SetScript("OnEvent", function()
             -- Update the name in the spellCooldowns table with the spell's localized name
             spellCooldowns[spellID].name = spellInfo.name
         else
-            print("Spell ID " .. spellID .. " not found.")
+            print("Spell ID " .. spellID .. "( " .. info.name .. " ) not found.")
         end
     end
 
