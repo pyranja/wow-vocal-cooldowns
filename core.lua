@@ -1254,7 +1254,7 @@ frame:SetScript("OnEvent", function()
     end
 
     -- Play the login announcement sound when the player logs in
-    Speech("CDVA")
+    Speech("Vocal Cooldowns enabled")
 
     -- Delay for 5 seconds
     C_Timer.After(5, function()
@@ -1265,9 +1265,8 @@ frame:SetScript("OnEvent", function()
         local whiteColor = "|cffffffff"
         local mintColor = '|cff00ffcc'
         local redColor = "|cffff0000"
-        DEFAULT_CHAT_FRAME:AddMessage(mintColor .. "CDVA (Cooldown Vocal Announcement): " .. whiteColor .. "Enabled")
+        DEFAULT_CHAT_FRAME:AddMessage(mintColor .. "Vocal Cooldowns: " .. whiteColor .. "Enabled")
         DEFAULT_CHAT_FRAME:AddMessage(mintColor .. "Class Detected: " .. whiteColor .. class)
-        DEFAULT_CHAT_FRAME:AddMessage(redColor .. "Discord.gg/JkfQvBWbQJ")
     end)
 
     local timer = C_Timer.NewTicker(1, CheckAllSpellCooldowns)
