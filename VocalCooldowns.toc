@@ -1,0 +1,8 @@
+## Interface: 110020
+## Title: VocalCooldowns
+## Author: Pyranja. Forked from Praesagus. Original by Fightts
+## Version: 0
+## SavedVariables: VocalCooldownsDB
+## DefaultState: enabled
+
+core.lua

@@ -1,8 +1,0 @@
-## Interface: 110020
-## Title: CDVA_Retail
-## Author: Praesagus. Original by Fightts
-## Version: 2.1
-## SavedVariables: CDVASavedVars
-## DefaultState: enabled
-
-core.lua
