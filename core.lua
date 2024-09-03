@@ -1181,7 +1181,7 @@ end
 
 
 local function Speech(text)
-    C_VoiceChat.SpeakText(2, text .. " ready", Enum.VoiceTtsDestination.QueuedLocalPlayback, 0, 100)
+    C_VoiceChat.SpeakText(2, text, Enum.VoiceTtsDestination.QueuedLocalPlayback, 0, 100)
 end
 
 -- Function to check individual spell cooldowns and play sound
@@ -1196,7 +1196,7 @@ local function CheckSpellCooldown(spellID)
             info.onCooldown = true
             info.exptime = spellCooldownInfo.startTime + spellCooldownInfo.duration
         elseif info.exptime and info.exptime < GetTime() and info.onCooldown then
-            Speech(info.name)
+            Speech(info.name .. " ready")
             info.onCooldown = false
         end
     end
