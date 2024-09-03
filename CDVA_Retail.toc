@@ -1,7 +1,7 @@
-## Interface: 100107
+## Interface: 110020
 ## Title: CDVA_Retail
-## Author: Fightts
-## Version: 1.0
+## Author: Praesagus. Original by Fightts
+## Version: 2.1
 ## SavedVariables: CDVASavedVars
 ## DefaultState: enabled
 

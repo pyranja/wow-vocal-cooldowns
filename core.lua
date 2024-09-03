@@ -7,20 +7,187 @@ local spellCooldowns = {}
 
 
 -- Define spells based on the player's class
-if class == "HUNTER" then
+if class == "EVOKER" then
     spellCooldowns = {
-
-
-
-        -- HUNTER SPELLS --
-
-
-
-        [14310] = {
-            name = "Freezing Trap",
-            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\IceTraps.mp3",
+        [357208] = {
+            name = "Fire Breath",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\FireBreath.mp3",
             onCooldown = false,
         },
+        [382266] = {
+            name = "Fire Breath",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\FireBreath.mp3",
+            onCooldown = false,
+        },
+        [372048] = {
+            name = "Oppressing Roar",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\OppressingRoar.mp3",
+            onCooldown = false,
+        },
+        [358267] = {
+            name = "Hover",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\Hover.mp3",
+            onCooldown = false,
+        },
+        [443328] = {
+            name = "Engulf",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\Engulf.mp3",
+            onCooldown = false,
+        },
+        [357210] = {
+            name = "Deep Breath",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\DeepBreath.mp3",
+            onCooldown = false,
+        },
+        [355913] = {
+            name = "Emerald Blossom",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\EmeraldBlossom.mp3",
+            onCooldown = false,
+        },
+        [358385] = {
+            name = "Landslide",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\Landslide.mp3",
+            onCooldown = false,
+        },
+        [363916] = {
+            name = "Obsidian Scales",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\ObsidianScales.mp3",
+            onCooldown = false,
+        },
+        [365585] = {
+            name = "Expunge",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\Expunge.mp3",
+            onCooldown = false,
+        },
+        [360995] = {
+            name = "Verdant Embrace",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\VerdantEmbrace.mp3",
+            onCooldown = false,
+        },
+        [359073] = {
+            name = "Eternity Surge",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\EternitySurge.mp3",
+            onCooldown = false,
+        },
+        [351338] = {
+            name = "Quell",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\Quell.mp3",
+            onCooldown = false,
+        },
+        [374251] = {
+            name = "Cauterizing Flame",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\CauterizingFlame.mp3",
+            onCooldown = false,
+        },
+        [375087] = {
+            name = "Dragonrage",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\Dragonrage.mp3",
+            onCooldown = false,
+        },
+        [370553] = {
+            name = "Tip the Scales",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\TipTheScales.mp3",
+            onCooldown = false,
+        },
+        [368847] = {
+            name = "Firestorm",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\Firestorm.mp3",
+            onCooldown = false,
+        },
+        [360806] = {
+            name = "Sleep Walk",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\SleepWalk.mp3",
+            onCooldown = false,
+        },
+        [370452] = {
+            name = "Shattering Star",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\ShatteringStar.mp3",
+            onCooldown = false,
+        },
+        [374348] = {
+            name = "Renewing Blaze",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\RenewingBlaze.mp3",
+            onCooldown = false,
+        },
+        [368432] = {
+            name = "Unravel",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\Unravel.mp3",
+            onCooldown = false,
+        },
+        [370665] = {
+            name = "Rescue",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\Rescue.mp3",
+            onCooldown = false,
+        },
+        [374968] = {
+            name = "Time Spiral",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\TimeSpiral.mp3",
+            onCooldown = false,
+        },
+        [374227] = {
+            name = "Zephyr",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\Zephyr.mp3",
+            onCooldown = false,
+        },
+        [382614] = {
+            name = "Dream Breath",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\DreamBreath.mp3",
+            onCooldown = false,
+        },
+        [366155] = {
+            name = "Reversion",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\Reversion.mp3",
+            onCooldown = false,
+        },
+        [363534] = {
+            name = "Rewind",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\Rewind.mp3",
+            onCooldown = false,
+        },
+        [382731] = {
+            name = "Spiritbloom",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\Spiritbloom.mp3",
+            onCooldown = false,
+        },
+        [357170] = {
+            name = "Time Dilation",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\TimeDilation.mp3",
+            onCooldown = false,
+        },
+        [370960] = {
+            name = "Emerald Communion",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\EmeraldCommunion.mp3",
+            onCooldown = false,
+        },
+        [373861] = {
+            name = "Temporal Anomaly",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\TemporalAnomaly.mp3",
+            onCooldown = false,
+        },
+        [359816] = {
+            name = "Dream Flight",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\DreamFlight.mp3",
+            onCooldown = false,
+        },
+        [370537] = {
+            name = "Stasis",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\Stasis.mp3",
+            onCooldown = false,
+        },
+        [357214] = {
+            name = "Wing Buffet",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\WingBuffet.mp3",
+            onCooldown = false,
+        },
+        [368970] = {
+            name = "Tail Swipe",
+            mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\TailSwipe.mp3",
+            onCooldown = false,
+        },
+    }
+    
+elseif class == "HUNTER" then
+    spellCooldowns = {
         [13809] = {                                                          -- 'Ice Traps Ready'
             name = "Frost Trap",
             mp3 = "Interface\\AddOns\\CDVA_Retail\\Sounds\\",
@@ -1276,89 +1443,41 @@ end
 
 local isMP3Playing = false
 
-
--- Initialize the global timer variable
-local smallestCooldown = math.huge
-
-
-
 -- Function to check individual spell cooldowns and play sound
 local function CheckSpellCooldown(spellID)
     local info = spellCooldowns[spellID]
-    local start, duration, enabled = GetSpellCooldown(info.name)
 
+    if info then
+        local spellCooldownInfo = C_Spell.GetSpellCooldown(spellID)
 
-
-
-
-    -- Check if start and duration are not nil and ignore cooldowns shorter than 2 seconds
-    if start and duration and start > 0 and duration > 0 and duration >= 2 then
-        -- Spell is on cooldown
-        info.onCooldown = true
-    --elseif info.onCooldown and not isMP3Playing then
-
-        exptime = start + duration
-    elseif exptime and exptime < GetTime() and info.onCooldown and not isMP3Playing then
-
-
-        -- Spell is off cooldown, play the MP3 and set the flag to prevent multiple plays
-        PlaySoundFile(info.mp3)
-        info.onCooldown = false
-        isMP3Playing = true
-
-        -- Set a timer to reset the isMP3Playing flag after a delay (e.g., 1 second)
-        C_Timer.After(1, function()
-            isMP3Playing = false
-        end)
+        if spellCooldownInfo and spellCooldownInfo.startTime > 0 and spellCooldownInfo.duration >= 2 then
+            -- Spell is on cooldown
+            info.onCooldown = true
+            info.exptime = spellCooldownInfo.startTime + spellCooldownInfo.duration
+        elseif info.exptime and info.exptime < GetTime() and info.onCooldown then
+            -- Spell is off cooldown, play the MP3 and set the flag to prevent multiple plays
+            if not isMP3Playing then
+                PlaySoundFile(info.mp3)
+                isMP3Playing = true
+                -- Set a timer to reset the isMP3Playing flag after a delay (e.g., 1 second)
+                C_Timer.After(1, function()
+                    isMP3Playing = false
+                end)
+            end
+            info.onCooldown = false
+        end
     end
 end
 
-
-
-
-
-
-
--- Play login announcement sound
+-- Function to play the login announcement sound
 local function PlayLoginSound()
     local mp3File = "Interface\\AddOns\\CDVA_Retail\\Sounds\\CDVAannouncement.mp3"  -- Replace with the path to your login announcement MP3 file
     PlaySoundFile(mp3File)
 end
 
-
-
-
-
-
-
-
-
-
--- Event handler for spell casting
-local function OnSpellCast(_, _, _, _, _, _, _, _, _, spellID)
-    if spellCooldowns[spellID] and spellCooldowns[spellID].enabled then
-        CheckSpellCooldown(spellID)
-        -- Check and play sound when the smallest cooldown spell comes off cooldown
-        if smallestCooldown ~= math.huge then
-            local currentTime = GetTime()
-            if smallestCooldown <= currentTime then
-                PlaySmallestCooldownSound()
-                smallestCooldown = math.huge -- Reset the smallest cooldown
-            end
-        end
-    end
-end
-
-
-
--- Register for the COMBAT_LOG_EVENT_UNFILTERED event to detect spell casting
-local eventFrame = CreateFrame("Frame")
-eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-eventFrame:SetScript("OnEvent", OnSpellCast)
-
 -- Function to check all spell cooldowns
 local function CheckAllSpellCooldowns()
-    for spellID, info in pairs(spellCooldowns) do
+    for spellID, _ in pairs(spellCooldowns) do
         CheckSpellCooldown(spellID)
     end
 end
@@ -1374,28 +1493,36 @@ locationFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 locationFrame:RegisterEvent("PLAYER_LEAVING_WORLD")
 locationFrame:SetScript("OnEvent", OnPlayerLocationChanged)
 
+-- Event handler for spell casting
+local function OnSpellCast(_, _, _, _, _, _, _, _, _, spellID)
+    if spellCooldowns[spellID] then
+        CheckSpellCooldown(spellID)
+    end
+end
+
+-- Register for the COMBAT_LOG_EVENT_UNFILTERED event to detect spell casting
+local eventFrame = CreateFrame("Frame")
+eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+eventFrame:SetScript("OnEvent", OnSpellCast)
 
 -- Register for the UNIT_SPELLCAST_SUCCEEDED event to detect spell casting
-local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 eventFrame:SetScript("OnEvent", OnSpellCast)
 
 -- Call CheckAllSpellCooldowns when the addon is loaded
 CheckAllSpellCooldowns()
 
-
-
-
-
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("PLAYER_LOGIN")
 
 frame:SetScript("OnEvent", function()
     for spellID, info in pairs(spellCooldowns) do
-        local spellName = GetSpellInfo(spellID)
-        if spellName then
-            local spellName, _, _, _, _, _, _, _, _, _, _ = GetSpellInfo(spellID)
-            spellCooldowns[spellID].name = spellName
+        local spellInfo = C_Spell.GetSpellInfo(spellID)
+        if spellInfo then
+            -- Update the name in the spellCooldowns table with the spell's localized name
+            spellCooldowns[spellID].name = spellInfo.name
+        else
+            print("Spell ID " .. spellID .. " not found.")
         end
     end
 
@@ -1409,24 +1536,11 @@ frame:SetScript("OnEvent", function()
 
         -- Print messages in chat with color codes
         local whiteColor = "|cffffffff"
-        local greenColor = "|cff00ff00"
-        local redColor = "|cffff0000"
         local mintColor = '|cff00ffcc'
+        local redColor = "|cffff0000"
         DEFAULT_CHAT_FRAME:AddMessage(mintColor .. "CDVA (Cooldown Vocal Announcement): " .. whiteColor .. "Enabled")
         DEFAULT_CHAT_FRAME:AddMessage(mintColor .. "Class Detected: " .. whiteColor .. class)
         DEFAULT_CHAT_FRAME:AddMessage(redColor .. "Discord.gg/JkfQvBWbQJ")
-    end)
-
-
-    local eventFrame = CreateFrame("Frame")
-    eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-
-    eventFrame:SetScript("OnEvent", function(_, _, _, event, _, sourceName, _, _, _, destName, _, _, _, _, spellID)
-        if event == "SPELL_CAST_SUCCESS" and sourceName == UnitName("player") then
-            if spellCooldowns[spellID] and spellCooldowns[spellID].enabled then
-                CheckSpellCooldown(spellID)
-            end
-        end
     end)
 
     local timer = C_Timer.NewTicker(1, CheckAllSpellCooldowns)
