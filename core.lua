@@ -4,7 +4,7 @@
 -- track cooldowns only if longer than this value
 local MIN_COOLDOWN_LENGTH = 10
 -- approximate time between update checks
-local COOLDOWN_UPDATE_PERIOD_SECONDS = 1
+local COOLDOWN_UPDATE_PERIOD_SECONDS = 0.5
 
 -- ADDON STATE
 
