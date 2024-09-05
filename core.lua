@@ -51,8 +51,8 @@ local function TrackRecentCast(spellID)
     local cooldown = C_Spell.GetSpellCooldown(spellID)
 
     --@debug@
-    logWithSpell("TrackRecentCast", "", spellID)
-    print(tprint(cooldown, 2))
+    -- logWithSpell("TrackRecentCast", "", spellID)
+    -- print(tprint(cooldown, 2))
     --@end-debug@
 
     -- non-zero start time indicates the spell is on cooldown
@@ -81,14 +81,14 @@ local function CheckRecentCast(spellID)
     local cooldown = C_Spell.GetSpellCooldown(spellID)
 
     --@debug@
-    logWithSpell("CheckRecentCast", "", spellID)
-    print(tprint(cooldown, 2))
+    -- logWithSpell("CheckRecentCast", "", spellID)
+    -- print(tprint(cooldown, 2))
     --@end-debug@
 
     -- spell has no cooldown (this should not happen) -> do not track it anymore
     if (not cooldown) then
         --@debug@
-        logWithSpell("CheckRecentCast", "!! Recent cast without cooldown data", spellID)
+        -- logWithSpell("CheckRecentCast", "!! Recent cast without cooldown data", spellID)
         --@end-debug@
         return True
     end
@@ -98,7 +98,7 @@ local function CheckRecentCast(spellID)
         InitializeSpell(spellID)
         tracked_cooldowns[spellID].expiration = cooldown.startTime + cooldown.duration
         --@debug@
-        logWithSpell("CheckRecentCast", "tracking new cooldown with duration " .. cooldown.duration, spellID)
+        -- logWithSpell("CheckRecentCast", "tracking new cooldown with duration " .. cooldown.duration, spellID)
         --@end-debug@
         return True
     end
@@ -106,14 +106,14 @@ local function CheckRecentCast(spellID)
     -- the spell is on cooldown but duration is below threshold -> re-check next time
     if cooldown.startTime > 0 then
         --@debug@
-        logWithSpell("CheckRecentCast", "unclear result -> re-check", spellID)
+        -- logWithSpell("CheckRecentCast", "unclear result -> re-check", spellID)
         --@end-debug@
         return False
     end
 
     -- spell is not on cooldown anymore -> forget it
     --@debug@
-    logWithSpell("CheckRecentCast", "spell is not on cooldown anymore -> forget it", spellID)
+    -- logWithSpell("CheckRecentCast", "spell is not on cooldown anymore -> forget it", spellID)
     --@end-debug@
     return True
 end
@@ -121,8 +121,8 @@ end
 -- find recent casts that have a valid cooldown now
 local function ScanRecentCasts()
     --@debug@
-    print("ScenRecentCasts " .. GetTime())
-    print(tprint(recent_casts, 2))
+    -- print("ScenRecentCasts " .. GetTime())
+    -- print(tprint(recent_casts, 2))
     --@end-debug@
     for spellID, _ in pairs(recent_casts) do
         local cooldown = C_Spell.GetSpellCooldown(spellID)
@@ -135,8 +135,8 @@ end
 -- check if any cooldown is ready and report it
 local function FindExpiredCooldowns()
     --@debug@
-    print("FindExpiredCooldowns " .. GetTime())
-    print(tprint(tracked_cooldowns, 2))
+    -- print("FindExpiredCooldowns " .. GetTime())
+    -- print(tprint(tracked_cooldowns, 2))
     --@end-debug@
     for id, cooldown in pairs(tracked_cooldowns) do
         if cooldown.expiration > 0 and cooldown.expiration < GetTime() then
