@@ -4,5 +4,6 @@
 ## Version: 0
 ## SavedVariables: VocalCooldownsDB
 ## DefaultState: enabled
+## X-Curse-Project-ID: 1114445
 
 core.lua
