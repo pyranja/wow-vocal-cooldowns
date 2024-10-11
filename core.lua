@@ -171,16 +171,7 @@ cooldownUpdateFrame:SetScript("OnEvent", HandleCooldownUpdate)
 -- ADDON FRAME - initialize and run cooldown update loop
 
 local function InitializeAddon()
-    -- Play the login announcement sound when the player logs in
     Speech("Vocal Cooldowns enabled")
-
-    -- Delay for 5 seconds
-    C_Timer.After(5, function()
-        -- Print messages in chat with color codes
-        local whiteColor = "|cffffffff"
-        local mintColor = '|cff00ffcc'
-        DEFAULT_CHAT_FRAME:AddMessage(mintColor .. "Vocal Cooldowns: " .. whiteColor .. "Enabled")
-    end)
 end
 
 -- handler for OnUpdate - main cooldown check loop of the addon
