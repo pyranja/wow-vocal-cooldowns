@@ -5,6 +5,11 @@
 local MIN_COOLDOWN_LENGTH = 10
 -- approximate time between update checks
 local COOLDOWN_UPDATE_PERIOD_SECONDS = 0.5
+-- spell ids to ignore for cooldown tracking
+local EXCLUDED_SPELL_IDS = {
+    -- [401150] = true,  -- Avatar
+    -- [1160] = true     -- Demoralizing Shout
+}
 
 -- ADDON STATE
 
@@ -48,6 +53,19 @@ end
 
 -- record that a spell with cooldown was casted
 local function TrackRecentCast(spellID)
+
+    -- skip tracking excluded spell ids
+    if EXCLUDED_SPELL_IDS[spellID] then
+
+        --@debug@
+        -- logWithSpell("TrackRecentCast -> ignore excluded spell", "", spellID)
+        -- print(tprint(EXCLUDED_SPELL_IDS, 2))
+        --@end-debug@
+
+        return
+    end
+
+
     local cooldown = C_Spell.GetSpellCooldown(spellID)
 
     --@debug@
