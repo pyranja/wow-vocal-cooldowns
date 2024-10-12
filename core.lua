@@ -1,14 +1,21 @@
 
+VocalCooldowns = LibStub("AceAddon-3.0"):NewAddon("VocalCooldowns")
+
 -- ADDON CONFIGS
 
--- track cooldowns only if longer than this value
-local MIN_COOLDOWN_LENGTH = 10
 -- approximate time between update checks
 local COOLDOWN_UPDATE_PERIOD_SECONDS = 0.5
 -- spell ids to ignore for cooldown tracking
 local EXCLUDED_SPELL_IDS = {
     -- [401150] = true,  -- Avatar
     -- [1160] = true     -- Demoralizing Shout
+}
+
+-- describes the db layout and default values
+local ADDON_DEFAULTS = {
+    profile = {
+        min_cooldown_length = 10
+    }
 }
 
 -- ADDON STATE
@@ -112,7 +119,7 @@ local function CheckRecentCast(spellID)
     end
 
     -- the spell is on cooldown and long enough to track it -> turn it into a tracked cooldown
-    if cooldown.startTime > 0 and cooldown.duration >= MIN_COOLDOWN_LENGTH then
+    if cooldown.startTime > 0 and cooldown.duration >= VocalCooldowns.db.profile.min_cooldown_length then
         InitializeSpell(spellID)
         tracked_cooldowns[spellID].expiration = cooldown.startTime + cooldown.duration
         --@debug@
@@ -186,11 +193,42 @@ local cooldownUpdateFrame = CreateFrame("Frame")
 cooldownUpdateFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 cooldownUpdateFrame:SetScript("OnEvent", HandleCooldownUpdate)
 
--- ADDON FRAME - initialize and run cooldown update loop
+-- Initialize ACE addon & options
 
-local function InitializeAddon()
+local ACE_OPTIONS = {
+    name = "Vocal Cooldowns",
+    type = "group",
+    args = {
+        ["min_cooldown_length"] = {
+            type = "input",
+            name = "Minimal Cooldown Length",
+            desc = "Ignore any cooldowns that are shorter.",
+            type = "range",
+            min = 0,
+            max = 9999,
+            step = 1,
+            softMax = 300,
+            set = function(info, val) VocalCooldowns.db.profile.min_cooldown_length = val end,
+            get = function(info) return VocalCooldowns.db.profile.min_cooldown_length end
+        }
+    }
+}
+
+function VocalCooldowns:OnInitialize()
+    -- load the saved variables into an ace database
+    self.db = LibStub("AceDB-3.0"):New("VocalCooldownsDB", ADDON_DEFAULTS)
+    -- create addon options
+    LibStub("AceConfig-3.0"):RegisterOptionsTable("VocalCooldowns", ACE_OPTIONS, nil)
+    LibStub("AceConfigDialog-3.0"):AddToBlizOptions("VocalCooldowns", "Vocal Cooldowns")
+    -- register separate tab in addon options for profile management
+    local profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
+	LibStub("AceConfig-3.0"):RegisterOptionsTable("VocalCooldowns_Profiles", profiles)
+	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("VocalCooldowns_Profiles", "Profiles", "Vocal Cooldowns")
+
     Speech("Vocal Cooldowns enabled")
 end
+
+-- ADDON FRAME - initialize and run cooldown update loop
 
 -- handler for OnUpdate - main cooldown check loop of the addon
 local elapsed = 0
@@ -209,6 +247,4 @@ local function AddonLoop(self, time_since_last_update)
 end
 
 local addonFrame = CreateFrame("Frame")
-addonFrame:RegisterEvent("PLAYER_LOGIN")
-addonFrame:SetScript("OnEvent", InitializeAddon)
 addonFrame:SetScript("OnUpdate", AddonLoop)

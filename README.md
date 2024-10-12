@@ -2,6 +2,14 @@
 
 World of Warcraft addon to announce cooldowns vocally when they become ready.
 
+## Run locally
+
+Link the project folder into `C:\Program Files (x86)\World of Warcraft\_retail_\Interface\AddOns`.
+
+## Dependencies
+
+The addon uses the [Ace3 addon framework](https://www.wowace.com/projects/ace3).
+
 ## History
 
 This addon is isnpired by [CDVA](https://www.curseforge.com/wow/addons/cdva-cooldown-vocal-announcement-retail), but rewritten from scratch:
