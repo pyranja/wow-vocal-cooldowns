@@ -3,8 +3,6 @@ VocalCooldowns = LibStub("AceAddon-3.0"):NewAddon("VocalCooldowns")
 
 -- ADDON CONFIGS
 
--- approximate time between update checks
-local COOLDOWN_UPDATE_PERIOD_SECONDS = 0.5
 -- spell ids to ignore for cooldown tracking
 local EXCLUDED_SPELL_IDS = {
     -- [401150] = true,  -- Avatar
