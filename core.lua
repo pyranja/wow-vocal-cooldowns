@@ -1,14 +1,20 @@
 
+VocalCooldowns = LibStub("AceAddon-3.0"):NewAddon("VocalCooldowns")
+
 -- ADDON CONFIGS
 
--- track cooldowns only if longer than this value
-local MIN_COOLDOWN_LENGTH = 10
--- approximate time between update checks
-local COOLDOWN_UPDATE_PERIOD_SECONDS = 0.5
 -- spell ids to ignore for cooldown tracking
 local EXCLUDED_SPELL_IDS = {
     -- [401150] = true,  -- Avatar
     -- [1160] = true     -- Demoralizing Shout
+}
+
+-- describes the db layout and default values
+local ADDON_DEFAULTS = {
+    profile = {
+        min_cooldown_length = 10,
+        update_period_seconds = 0.5
+    }
 }
 
 -- ADDON STATE
@@ -112,7 +118,7 @@ local function CheckRecentCast(spellID)
     end
 
     -- the spell is on cooldown and long enough to track it -> turn it into a tracked cooldown
-    if cooldown.startTime > 0 and cooldown.duration >= MIN_COOLDOWN_LENGTH then
+    if cooldown.startTime > 0 and cooldown.duration >= VocalCooldowns.db.profile.min_cooldown_length then
         InitializeSpell(spellID)
         tracked_cooldowns[spellID].expiration = cooldown.startTime + cooldown.duration
         --@debug@
@@ -186,11 +192,57 @@ local cooldownUpdateFrame = CreateFrame("Frame")
 cooldownUpdateFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 cooldownUpdateFrame:SetScript("OnEvent", HandleCooldownUpdate)
 
--- ADDON FRAME - initialize and run cooldown update loop
+-- Initialize ACE addon & options
 
-local function InitializeAddon()
+local ACE_OPTIONS = {
+    name = "Vocal Cooldowns",
+    type = "group",
+    args = {
+        ["min_cooldown_length"] = {
+            order = 10,
+            type = "input",
+            name = "Minimal Cooldown Length (seconds)",
+            desc = "Ignore any cooldowns that are shorter.",
+            width = "double",
+            type = "range",
+            min = 0,
+            max = 9999,
+            step = 1,
+            softMax = 300,
+            set = function(info, val) VocalCooldowns.db.profile.min_cooldown_length = val end,
+            get = function(info) return VocalCooldowns.db.profile.min_cooldown_length end
+        },
+        ["update_period_seconds"] = {
+            order = 20,
+            type = "input",
+            name = "Update Period (seconds)",
+            desc = "Pause for this long before checking cooldown expiration again.",
+            width = "double",
+            type = "range",
+            min = 0.1,
+            max = 5,
+            step = 0.1,
+            set = function(info, val) VocalCooldowns.db.profile.update_period_seconds = val end,
+            get = function(info) return VocalCooldowns.db.profile.update_period_seconds end
+        },
+    }
+}
+
+function VocalCooldowns:OnInitialize()
+    -- load the saved variables into an ace database
+    self.db = LibStub("AceDB-3.0"):New("VocalCooldownsDB", ADDON_DEFAULTS)
+    -- create addon options
+    LibStub("AceConfig-3.0"):RegisterOptionsTable("VocalCooldowns", ACE_OPTIONS, nil)
+    LibStub("AceConfigDialog-3.0"):AddToBlizOptions("VocalCooldowns", "Vocal Cooldowns")
+    -- register separate tab in addon options for profile management
+    local profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
+	LibStub("AceConfig-3.0"):RegisterOptionsTable("VocalCooldowns_Profiles", profiles)
+	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("VocalCooldowns_Profiles", "Profiles", "Vocal Cooldowns")
+
     Speech("Vocal Cooldowns enabled")
 end
+
+-- ADDON FRAME - initialize and run cooldown update loop
 
 -- handler for OnUpdate - main cooldown check loop of the addon
 local elapsed = 0
@@ -198,7 +250,7 @@ local elapsed = 0
 local function AddonLoop(self, time_since_last_update)
     elapsed = elapsed + time_since_last_update
 
-    if elapsed < COOLDOWN_UPDATE_PERIOD_SECONDS then
+    if elapsed < VocalCooldowns.db.profile.update_period_seconds then
         return
     end
 
@@ -209,6 +261,4 @@ local function AddonLoop(self, time_since_last_update)
 end
 
 local addonFrame = CreateFrame("Frame")
-addonFrame:RegisterEvent("PLAYER_LOGIN")
-addonFrame:SetScript("OnEvent", InitializeAddon)
 addonFrame:SetScript("OnUpdate", AddonLoop)
