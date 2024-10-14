@@ -14,7 +14,8 @@ local EXCLUDED_SPELL_IDS = {
 -- describes the db layout and default values
 local ADDON_DEFAULTS = {
     profile = {
-        min_cooldown_length = 10
+        min_cooldown_length = 10,
+        update_period_seconds = 0.5
     }
 }
 
@@ -200,9 +201,11 @@ local ACE_OPTIONS = {
     type = "group",
     args = {
         ["min_cooldown_length"] = {
+            order = 10,
             type = "input",
             name = "Minimal Cooldown Length",
             desc = "Ignore any cooldowns that are shorter.",
+            width = "double",
             type = "range",
             min = 0,
             max = 9999,
@@ -210,7 +213,20 @@ local ACE_OPTIONS = {
             softMax = 300,
             set = function(info, val) VocalCooldowns.db.profile.min_cooldown_length = val end,
             get = function(info) return VocalCooldowns.db.profile.min_cooldown_length end
-        }
+        },
+        ["update_period_seconds"] = {
+            order = 20,
+            type = "input",
+            name = "Update Period (seconds)",
+            desc = "Pause for this long before checking cooldown expiration again.",
+            width = "double",
+            type = "range",
+            min = 0.1,
+            max = 5,
+            step = 0.1,
+            set = function(info, val) VocalCooldowns.db.profile.update_period_seconds = val end,
+            get = function(info) return VocalCooldowns.db.profile.update_period_seconds end
+        },
     }
 }
 
@@ -236,7 +252,7 @@ local elapsed = 0
 local function AddonLoop(self, time_since_last_update)
     elapsed = elapsed + time_since_last_update
 
-    if elapsed < COOLDOWN_UPDATE_PERIOD_SECONDS then
+    if elapsed < VocalCooldowns.db.profile.update_period_seconds then
         return
     end
 
