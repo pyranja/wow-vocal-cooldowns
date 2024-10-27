@@ -3,21 +3,25 @@ VocalCooldowns = LibStub("AceAddon-3.0"):NewAddon("VocalCooldowns")
 
 -- ADDON CONFIGS
 
--- spell ids to ignore for cooldown tracking
-local EXCLUDED_SPELL_IDS = {
-    -- [401150] = true,  -- Avatar
-    -- [1160] = true     -- Demoralizing Shout
-}
-
 -- describes the db layout and default values
 local ADDON_DEFAULTS = {
     profile = {
         min_cooldown_length = 10,
-        update_period_seconds = 0.5
+        update_period_seconds = 0.5,
+        voice_selection = 2,
+        notification_template = "${name} ready soon",
+        headsup_seconds = 2,
+        blacklist = {}
     }
 }
 
+local ACE_OPTIONS = {}
+
+
 -- ADDON STATE
+
+-- Placeholder table for TTS voice options
+local voiceOptions = {}
 
 -- keeps track of active cooldowns
 -- cooldowns are added dynamically as they are discovered
@@ -29,9 +33,33 @@ local recent_casts = {}
 
 -- UTILITY FUNCTIONS
 
+
+-- Function to populate voice options
+local function PopulateVoiceOptions()
+    local voices = C_VoiceChat.GetTtsVoices()
+    for _, voiceInfo in ipairs(voices) do
+        voiceOptions[voiceInfo.voiceID] = voiceInfo.name
+    end
+end
+
+
+local function TableHasValue(tbl, value)
+    for _, v in pairs(tbl) do
+        if v == value then
+            return true
+        end
+    end
+    return false
+end
+
 -- forward text to the native text-to-speech functionality
 local function Speech(text)
-    C_VoiceChat.SpeakText(2, text, Enum.VoiceTtsDestination.QueuedLocalPlayback, 0, 100)
+    C_VoiceChat.SpeakText(VocalCooldowns.db.profile.selected_voice, text, Enum.VoiceTtsDestination.QueuedLocalPlayback, 0, 100)
+end
+
+-- replace a placeholder with the value of an element in the context table with the placeholder name if available
+local function interpolateString(input, context)
+    return input:gsub("($%b{})", function (placeholder) return context[placeholder:sub(3,-2)] or placeholder end)
 end
 
 -- print a lua table (for debugging)
@@ -60,12 +88,14 @@ end
 -- record that a spell with cooldown was casted
 local function TrackRecentCast(spellID)
 
+    local spellInfo = C_Spell.GetSpellInfo(spellID)
+
     -- skip tracking excluded spell ids
-    if EXCLUDED_SPELL_IDS[spellID] then
+    if spellInfo and (TableHasValue(VocalCooldowns.db.profile.blacklist,spellInfo.spellID) or TableHasValue(VocalCooldowns.db.profile.blacklist,spellInfo.name)) then
 
         --@debug@
         -- logWithSpell("TrackRecentCast -> ignore excluded spell", "", spellID)
-        -- print(tprint(EXCLUDED_SPELL_IDS, 2))
+        -- print(tprint(VocalCooldowns.db.profile.blacklist, 2))
         --@end-debug@
 
         return
@@ -163,8 +193,8 @@ local function FindExpiredCooldowns()
     -- print(tprint(tracked_cooldowns, 2))
     --@end-debug@
     for id, cooldown in pairs(tracked_cooldowns) do
-        if cooldown.expiration > 0 and cooldown.expiration < GetTime() then
-            Speech(cooldown.name .. " ready")
+        if cooldown.expiration > 0 and (cooldown.expiration - VocalCooldowns.db.profile.headsup_seconds) < GetTime() then
+            Speech(interpolateString(VocalCooldowns.db.profile.notification_template, cooldown))
             tracked_cooldowns[id] = nil
         end
     end
@@ -192,15 +222,35 @@ local cooldownUpdateFrame = CreateFrame("Frame")
 cooldownUpdateFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 cooldownUpdateFrame:SetScript("OnEvent", HandleCooldownUpdate)
 
+
+local function UpdateStringListOptions(options)
+    if not VocalCooldowns.db then
+        return
+    end
+    local listOptions = options.args.blacklist.args
+    wipe(listOptions)  -- Clear previous entries
+    for index, item in ipairs(VocalCooldowns.db.profile.blacklist) do
+        listOptions["remove_" .. index] = {
+            type = "execute",
+            name = "Remove ".. item,
+            func = function()
+                table.remove(VocalCooldowns.db.profile.blacklist, index)
+                UpdateStringListOptions(options)  -- Refresh the options to reflect the removal
+            end,
+            width = "half",
+        }
+    end
+    LibStub("AceConfigRegistry-3.0"):NotifyChange("VocalCooldowns")
+end
+
 -- Initialize ACE addon & options
 
-local ACE_OPTIONS = {
+ACE_OPTIONS = {
     name = "Vocal Cooldowns",
     type = "group",
     args = {
         ["min_cooldown_length"] = {
             order = 10,
-            type = "input",
             name = "Minimal Cooldown Length (seconds)",
             desc = "Ignore any cooldowns that are shorter.",
             width = "double",
@@ -214,7 +264,6 @@ local ACE_OPTIONS = {
         },
         ["update_period_seconds"] = {
             order = 20,
-            type = "input",
             name = "Update Period (seconds)",
             desc = "Pause for this long before checking cooldown expiration again.",
             width = "double",
@@ -225,10 +274,65 @@ local ACE_OPTIONS = {
             set = function(info, val) VocalCooldowns.db.profile.update_period_seconds = val end,
             get = function(info) return VocalCooldowns.db.profile.update_period_seconds end
         },
+        ["headsup_seconds"] = {
+            order = 20,
+            name = "Headsup (seconds)",
+            desc = "Notify this many seconds before the cooldown is available.",
+            width = "double",
+            type = "range",
+            min = 0.1,
+            max = 5,
+            step = 0.1,
+            set = function(info, val) VocalCooldowns.db.profile.headsup_seconds = val end,
+            get = function(info) return VocalCooldowns.db.profile.headsup_seconds end
+        },
+        ["voice_selection"]  = {
+            type = "select",
+            name = "Select TTS Voice",
+            desc = "Choose a voice for TTS.",
+            values = voiceOptions,
+            get = function(info) return VocalCooldowns.db.profile.selected_voice end,
+            set = function(info, value)
+                VocalCooldowns.db.profile.selected_voice = value
+                Speech("Selected new voice "..voiceOptions[value])
+            end,
+        },
+        ["notification_template"] = {
+            type = "input",
+            name = "Notification Template",
+            desc = "Enter the template for TTS notifications.",
+            get = function(info) return VocalCooldowns.db.profile.notification_template or "" end,
+            set = function(info, value)
+                VocalCooldowns.db.profile.notification_template = value
+            end,
+            multiline = false,  -- Set to true if you want a larger text box for longer messages
+            width = "full",     -- Expands the input box to the full width of the config dialog
+        },
+        ["add_blacklist_item"] = {
+            type = "input",
+            name = "Add Item",
+            desc = "Enter a string to add to the list.",
+            get = function(info) return "" end,  -- Always return an empty string so the field resets after input
+            set = function(info, value)
+                table.insert(VocalCooldowns.db.profile.blacklist, value)
+                tprint(VocalCooldowns.db.profile.blacklist,2)
+                UpdateStringListOptions(ACE_OPTIONS)
+            end,
+            width = "full",
+        },
+        ["blacklist"] = {
+            type = "group",
+            name = "Blacklist",
+            inline = true,
+            args = {}
+        },
     }
 }
 
+
 function VocalCooldowns:OnInitialize()
+    PopulateVoiceOptions()
+
     -- load the saved variables into an ace database
     self.db = LibStub("AceDB-3.0"):New("VocalCooldownsDB", ADDON_DEFAULTS)
     -- create addon options
@@ -238,6 +342,7 @@ function VocalCooldowns:OnInitialize()
     local profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("VocalCooldowns_Profiles", profiles)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("VocalCooldowns_Profiles", "Profiles", "Vocal Cooldowns")
+    UpdateStringListOptions(ACE_OPTIONS)
 
     Speech("Vocal Cooldowns enabled")
 end
