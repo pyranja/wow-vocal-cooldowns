@@ -1,4 +1,4 @@
-## Interface: 110020
+## Interface: 110050
 ## Title: VocalCooldowns
 ## Author: Pyranja. Forked from Praesagus. Original by Fightts
 ## Version: 0
