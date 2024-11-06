@@ -17,7 +17,6 @@ local ADDON_DEFAULTS = {
 
 local ACE_OPTIONS = {}
 
-
 -- ADDON STATE
 
 -- Placeholder table for TTS voice options
@@ -62,27 +61,6 @@ local function interpolateString(input, context)
     return input:gsub("($%b{})", function (placeholder) return context[placeholder:sub(3,-2)] or placeholder end)
 end
 
--- print a lua table (for debugging)
-local function tprint (tbl, indent)
-    if not indent then indent = 0 end
-    for k, v in pairs(tbl) do
-        formatting = string.rep("  ", indent) .. k .. ": "
-        if type(v) == "table" then
-            print(formatting)
-            tprint(v, indent+1)
-        elseif type(v) == 'boolean' then
-            print(formatting .. tostring(v))      
-        else
-            print(formatting .. v)
-        end
-    end
-end
-
-local function logWithSpell(functionName, message, spellID)
-    local spellName = C_Spell.GetSpellName(spellID)
-    print(functionName .. ": " .. message .. " | spellID=" .. spellID .. " (" .. spellName .. ")")
-end
-
 -- ADDON logic
 
 -- record that a spell with cooldown was casted
@@ -91,23 +69,11 @@ local function TrackRecentCast(spellID)
     local spellInfo = C_Spell.GetSpellInfo(spellID)
 
     -- skip tracking excluded spell ids
-    if spellInfo and (TableHasValue(VocalCooldowns.db.profile.blacklist,spellInfo.spellID) or TableHasValue(VocalCooldowns.db.profile.blacklist,spellInfo.name)) then
-
-        --@debug@
-        -- logWithSpell("TrackRecentCast -> ignore excluded spell", "", spellID)
-        -- print(tprint(VocalCooldowns.db.profile.blacklist, 2))
-        --@end-debug@
-
+    if spellInfo and TableHasValue(VocalCooldowns.db.profile.blacklist,spellInfo.name) then
         return
     end
 
-
     local cooldown = C_Spell.GetSpellCooldown(spellID)
-
-    --@debug@
-    -- logWithSpell("TrackRecentCast", "", spellID)
-    -- print(tprint(cooldown, 2))
-    --@end-debug@
 
     -- non-zero start time indicates the spell is on cooldown
     if cooldown and (cooldown.startTime > 0 or cooldown.isEnabled) then
@@ -116,87 +82,56 @@ local function TrackRecentCast(spellID)
 end
 
 -- If a spell cooldown is not tracked yet, fetch its name and prepare the data structure in tracked_cooldowns
-local function InitializeSpell(spellID)
+local function trackSpellCooldown(spellID, cooldown)
     if tracked_cooldowns[spellID] then
+        tracked_cooldowns[spellID].expiration = cooldown.startTime + cooldown.duration
         return
     end
 
-    name = C_Spell.GetSpellName(spellID)
+    local name = C_Spell.GetSpellName(spellID)
     tracked_cooldowns[spellID] = {
         name = name,
-        expiration = 0,
+        expiration = cooldown.startTime + cooldown.duration,
+        notified = false,
     }
 end
 
 -- Check cooldown of a recent cast and track it if applicable
 -- Yields true if the recent cast is now tracked as cooldown OR the cast should not be tracked anymore
 -- Yields false if there is no clear result and the recent cast must still be tracked
-local function CheckRecentCast(spellID)
+local function CheckRecentCastForPromotion(spellID)
     local cooldown = C_Spell.GetSpellCooldown(spellID)
-
-    --@debug@
-    -- logWithSpell("CheckRecentCast", "", spellID)
-    -- print(tprint(cooldown, 2))
-    --@end-debug@
-
-    -- spell has no cooldown (this should not happen) -> do not track it anymore
-    if (not cooldown) then
-        --@debug@
-        -- logWithSpell("CheckRecentCast", "!! Recent cast without cooldown data", spellID)
-        --@end-debug@
-        return True
-    end
 
     -- the spell is on cooldown and long enough to track it -> turn it into a tracked cooldown
     if cooldown.startTime > 0 and cooldown.duration >= VocalCooldowns.db.profile.min_cooldown_length then
-        InitializeSpell(spellID)
-        tracked_cooldowns[spellID].expiration = cooldown.startTime + cooldown.duration
-        --@debug@
-        -- logWithSpell("CheckRecentCast", "tracking new cooldown with duration " .. cooldown.duration, spellID)
-        --@end-debug@
-        return True
+        trackSpellCooldown(spellID, cooldown)
     end
-
-    -- the spell is on cooldown but duration is below threshold -> re-check next time
-    if cooldown.startTime > 0 then
-        --@debug@
-        -- logWithSpell("CheckRecentCast", "unclear result -> re-check", spellID)
-        --@end-debug@
-        return False
-    end
-
-    -- spell is not on cooldown anymore -> forget it
-    --@debug@
-    -- logWithSpell("CheckRecentCast", "spell is not on cooldown anymore -> forget it", spellID)
-    --@end-debug@
-    return True
 end
 
 -- find recent casts that have a valid cooldown now
 local function ScanRecentCasts()
-    --@debug@
-    -- print("ScenRecentCasts " .. GetTime())
-    -- print(tprint(recent_casts, 2))
-    --@end-debug@
+    local expiredCasts = {}
     for spellID, _ in pairs(recent_casts) do
-        local cooldown = C_Spell.GetSpellCooldown(spellID)
-        if CheckRecentCast(spellID) then
-            recent_casts[spellID] = nil
-        end
+        CheckRecentCastForPromotion(spellID)
+        table.insert(expiredCasts, spellID)
+    end
+    for _, spellID in ipairs(expiredCasts) do
+        recent_casts[spellID] = nil
     end
 end
 
 -- check if any cooldown is ready and report it
 local function FindExpiredCooldowns()
-    --@debug@
-    -- print("FindExpiredCooldowns " .. GetTime())
-    -- print(tprint(tracked_cooldowns, 2))
-    --@end-debug@
+    local expired = {}
     for id, cooldown in pairs(tracked_cooldowns) do
-        if cooldown.expiration > 0 and (cooldown.expiration - VocalCooldowns.db.profile.headsup_seconds) < GetTime() then
+        if not cooldown.notified and cooldown.expiration > 0 and (cooldown.expiration - VocalCooldowns.db.profile.headsup_seconds) < GetTime() then
+            cooldown.notified = true
+            table.insert(expired, id)
             Speech(interpolateString(VocalCooldowns.db.profile.notification_template, cooldown))
-            tracked_cooldowns[id] = nil
         end
+    end
+    for _, id in ipairs(expired) do
+        tracked_cooldowns[id] = nil
     end
 end
 
@@ -209,15 +144,21 @@ local function HandleSpellCast(_, _, unit, _, spellID)
         TrackRecentCast(spellID)
     end
 end
+
 local spellCastFrame = CreateFrame("Frame")
 spellCastFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 spellCastFrame:SetScript("OnEvent", HandleSpellCast)
 
 -- Register for the SPELL_UPDATE_COOLDOWN event to detect cooldown changes
 -- this event has no payload, so trigger a check on all recent casts & tracked cooldowns
+local lastScanForRecentCasts = GetTime()
+
 local function HandleCooldownUpdate()
+    if(GetTime()-lastScanForRecentCasts < VocalCooldowns.db.profile.update_period_seconds) then return end
+    lastScanForRecentCasts = GetTime()
     ScanRecentCasts()
 end
+
 local cooldownUpdateFrame = CreateFrame("Frame")
 cooldownUpdateFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 cooldownUpdateFrame:SetScript("OnEvent", HandleCooldownUpdate)
@@ -232,7 +173,7 @@ local function UpdateStringListOptions(options)
     for index, item in ipairs(VocalCooldowns.db.profile.blacklist) do
         listOptions["remove_" .. index] = {
             type = "execute",
-            name = "Remove ".. item,
+            name = item,
             func = function()
                 table.remove(VocalCooldowns.db.profile.blacklist, index)
                 UpdateStringListOptions(options)  -- Refresh the options to reflect the removal
@@ -242,6 +183,22 @@ local function UpdateStringListOptions(options)
     end
     LibStub("AceConfigRegistry-3.0"):NotifyChange("VocalCooldowns")
 end
+
+local function PrintTableContents()
+    print("Tracked Cooldowns:")
+    for id, cooldown in pairs(tracked_cooldowns) do
+        print("Spell ID:", id)
+        for key, value in pairs(cooldown) do
+            print("  " .. key .. ":", value)
+        end
+    end
+
+    print("Recent Casts:")
+    for id, _ in pairs(recent_casts) do
+        print("Spell ID:", id)
+    end
+end
+
 
 -- Initialize ACE addon & options
 
@@ -326,6 +283,15 @@ ACE_OPTIONS = {
             inline = true,
             args = {}
         },
+        ["debug_print_tables"] = {
+            type = "execute",
+            name = "Print Tracked Tables",
+            desc = "Print the current contents of recent_casts and tracked_cooldowns.",
+            func = function()
+                PrintTableContents()
+            end,
+            width = "full",
+        }
     }
 }
 
@@ -343,8 +309,6 @@ function VocalCooldowns:OnInitialize()
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("VocalCooldowns_Profiles", profiles)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("VocalCooldowns_Profiles", "Profiles", "Vocal Cooldowns")
     UpdateStringListOptions(ACE_OPTIONS)
-
-    Speech("Vocal Cooldowns enabled")
 end
 
 -- ADDON FRAME - initialize and run cooldown update loop
@@ -361,7 +325,7 @@ local function AddonLoop(self, time_since_last_update)
 
     -- reset timer
     elapsed = 0
-
+    ScanRecentCasts()
     FindExpiredCooldowns()
 end
 
